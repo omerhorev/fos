@@ -7,22 +7,33 @@
 unsigned int g_ticks;
 
 int clock(unsigned int times);
-void first_task(void* context);
+void clock_task(void* context);
+
+uint8_t task_stack[2][400];
 
 int main()
 {
 	g_ticks = 0;
 
 	SystemInit();
+
+	fos_kernel_init();
+
 	if (SysTick_Config(SystemCoreClock / 1000) != 0) // every ms
 	{
-		trace_err_printf("Error initializing sys-tick clock\n");
+		trace_err_printf("Error initializing systick clock\n");
 		return 1;
 	}
 
-	if (!fos_kernel_add_task(first_task, (void*)5))
+	if (!fos_kernel_add_task(task_stack[0], sizeof(task_stack[0]), clock_task, (void*)5))
 	{
-		trace_err_printf("Error initializing the kernel\n");
+		trace_err_printf("Error initializing the first task\n");
+		return 1;
+	}
+
+	if (!fos_kernel_add_task(task_stack[1], sizeof(task_stack[1]), clock_task, (void*)10))
+	{
+		trace_err_printf("Error initializing the second task\n");
 		return 1;
 	}
 
@@ -31,29 +42,24 @@ int main()
 	return 0;
 }
 
-void first_task(void* context)
+void clock_task(void* context)
 {
 	clock((unsigned int)context);
 }
 
 int clock(unsigned int times)
 {
-	unsigned int sec = 0;
+	tick_t sec = 0;
 
 	while (sec < times)
 	{
-		if (sec != (g_ticks / 1000))
+		if (sec != (fos_kernel_get_systicks() / 1000))
 		{
-			sec = (g_ticks / 1000);
-			trace_printf("A second has passed [%u]\n", sec);
+			sec = (fos_kernel_get_systicks() / 1000);
+
+			trace_printf("A second has passed [%lu] [%u]\n", sec, fos_kernel_get_current_task_id());
 		}
 	}
 
 	return 0;
 }
-
-extern "C" __attribute__((isr)) void SysTick_Handler(void)
-{
-	g_ticks++;
-}
-
