@@ -9,7 +9,6 @@ extern "C" {
 #include "kernel-data.h"
 
 #define FOS_KERNEL_TICKS_PER_SCHEDULE	(50)
-#define FOS_KERNEL_MAX_TASKS 			(5)
 
 extern unsigned int g_fos_kerenl_debug;
 
@@ -34,7 +33,7 @@ void fos_kernel_systick(void);
  * @param entry    The entry point to the task code
  * @param context  A context that will be passed to the method
  */
-bool fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry, const void* context);
+bool fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry, void* context);
 
 /**
  * Returns the current systick clock passed since the kernel started

@@ -27,7 +27,9 @@ CPP_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-contrib/fos/src \
+contrib/fos/src/fos \
+contrib/fos/src/kernel \
+contrib/fos/src/kernel/port \
 src \
 system/src/cmsis \
 system/src/cortexm \

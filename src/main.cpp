@@ -2,7 +2,13 @@
 #include <stdio.h>
 #include "cmsis_device.h"
 #include "trace.h"
-#include "fos/kernel.h"
+#include "fos/fos.h"
+#include "fos/mutex.h"
+
+
+#include <mutex>
+
+using namespace fos;
 
 unsigned int g_ticks;
 
@@ -11,6 +17,30 @@ void clock_task(void* context);
 
 uint8_t task_stack[2][400];
 
+int main()
+{
+	SystemInit();
+
+	os& os = os::instance();
+
+	mutex m;
+
+	/*os.add_task(new uint8_t[400], 400, [&]()
+	{
+		m.lock();
+
+
+
+		m.unlock();
+	});*/
+
+	os.add_task(new uint8_t[400], 400, [&]() { m.lock(); clock(5); m.unlock(); });
+	os.add_task(new uint8_t[400], 400, [&]() { m.lock(); clock(10); m.unlock(); });
+
+	os.run();
+}
+
+/*
 int main()
 {
 	g_ticks = 0;
@@ -41,7 +71,7 @@ int main()
 
 	return 0;
 }
-
+*/
 void clock_task(void* context)
 {
 	clock((unsigned int)context);
@@ -49,15 +79,15 @@ void clock_task(void* context)
 
 int clock(unsigned int times)
 {
-	tick_t sec = 0;
+	fos::tick_t sec = 0;
 
 	while (sec < times)
 	{
-		if (sec != (fos_kernel_get_systicks() / 1000))
+		if (sec != (os::instance().get_systicks() / 1000))
 		{
-			sec = (fos_kernel_get_systicks() / 1000);
+			sec = (os::instance().get_systicks() / 1000);
 
-			trace_printf("A second has passed [%lu] [%u]\n", sec, fos_kernel_get_current_task_id());
+			trace_printf("A second has passed [%lu] [%u]\n", sec, os::instance().get_current_task_id());
 		}
 	}
 

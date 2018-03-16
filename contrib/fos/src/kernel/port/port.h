@@ -5,8 +5,8 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "fos/kernel-data.h"
-#include "kernel-internal.h"
+#include "kernel/kernel-data.h"
+#include "kernel/kernel-internal.h"
 
 #define FOS_PORT_MIN_STACK_SIZE    ((sizeof(struct fos_hw_ctx) + sizeof(struct fos_sw_ctx)))
 #define FOS_PORT_EXC_RETURN_TASK   (0xfffffffd)

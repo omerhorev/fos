@@ -1,5 +1,5 @@
 #include "port.h"
-#include "kernel-internal.h"
+#include "kernel/kernel-internal.h"
 #include "cmsis_device.h"
 
 void fos_port_setup_interrupts(void)

@@ -1,7 +1,8 @@
-#include "fos/kernel.h"
-#include "fos/kernel-data.h"
-#include "kernel-internal.h"
-#include "port.h"
+#include "fos/options.h"
+#include "kernel/kernel.h"
+#include "kernel/kernel-data.h"
+#include "kernel/kernel-internal.h"
+#include "port/port.h"
 #include "cmsis_device.h"
 
 #include <stdbool.h>
@@ -43,6 +44,11 @@ bool fos_kernel_init()
  */
 bool fos_kernel_run()
 {
+	if (SysTick_Config(SystemCoreClock / 1000) != 0)
+	{
+		return false;
+	}
+
 	if (!is_kernel_initialized())
 	{
 		return false;
@@ -60,7 +66,7 @@ bool fos_kernel_run()
 	return true;
 }
 
-bool fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry, const void* context)
+bool fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry, void* context)
 {
 	struct fos_tcb* task;
 	regval_t sp;
@@ -117,6 +123,16 @@ void fos_kernel_schedule(void)
 
 	g_fos_cur_task = &g_fos_tasks[new_task_id];
 	g_fos_cur_task->status = fos_kernel_task_status_running;
+}
+
+struct fos_tcb* fos_kernel_get_tcb(unsigned int task)
+{
+	if (task >= g_fos_task_count)
+	{
+		return false;
+	}
+
+	return &g_fos_tasks[task];
 }
 
 tick_t fos_kernel_get_systicks(void)
