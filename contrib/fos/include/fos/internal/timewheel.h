@@ -12,45 +12,32 @@ namespace fos
 {
 namespace internal
 {
-	class timewheel_event
+	struct timewheel_event
 	{
-	public:
+
 		timewheel_event(std::function<void(tick_t)> event, tick_t ticks) :
-			_ticks(ticks), _event(event)
-		{
-
-		}
-
-	public:
-
-		inline tick_t get_ticks() const
-		{
-			return _ticks;
-		}
+			ticks(ticks), event(event) {}
 
 		inline void dispach() const
 		{
-			_event(_ticks);
+			event(ticks);
 		}
 
-	private:
+		bool operator < (const timewheel_event& event) const
+		{
+			return ticks < event.ticks;
+		}
 
-		tick_t _ticks;
+		bool operator > (const timewheel_event& event) const
+		{
+			return ticks > event.ticks;
+		}
 
-		std::function<void(tick_t)> _event;
+		tick_t ticks;
+
+		std::function<void(tick_t)> event;
 	};
 
-	class timewheel_comparer
-	{
-	public:
-	    bool operator() (timewheel_event& event1, timewheel_event& event2)
-	    {
-	    	tick_t tick1 = event1.get_ticks();
-	    	tick_t tick2 = event2.get_ticks();
-
-	        return tick1 > tick2;
-	    }
-	};
 
 	class timewheel
 	{
@@ -82,7 +69,7 @@ namespace internal
 			return _events_queue.size() == 0;
 		}
 
-		std::priority_queue<timewheel_event, std::vector<timewheel_event>, timewheel_comparer> _events_queue;
+		std::priority_queue<timewheel_event> _events_queue;
 	};
 }
 }

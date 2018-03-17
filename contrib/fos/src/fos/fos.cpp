@@ -1,6 +1,7 @@
 #include "fos/fos.h"
 #include "fos/mutex.h"
 #include "kernel/kernel.h"
+#include "kernel/kernel-internal.h"
 
 using namespace fos;
 
@@ -63,7 +64,7 @@ void os::systick_hook(tick_t ticks)
 	// @note This method is executed in the interrupt context
 
 	while(_timewheel.empty() == false &&
-		  _timewheel.top().get_ticks() <= ticks)
+		  _timewheel.top().ticks <= ticks)
 	{
 		fos::internal::timewheel_event event = _timewheel.top();
 
@@ -78,9 +79,40 @@ void os::systick_hook_kernel(unsigned int ticks)
 	os::instance().systick_hook(ticks);
 }
 
+taskid_t os::get_next_task(void)
+{
+	os::instance()._timewheel.size();
+
+	unsigned int new_task_id = fos_kernel_get_current_task_id();
+
+	do
+	{
+		new_task_id = (new_task_id + 1) % FOS_KERNEL_MAX_TASKS;
+	} while(fos_kernel_get_tcb(new_task_id)->status != fos_kernel_task_status_ready);
+
+	return new_task_id;
+}
+
 static void generic_task_entry(void* context)
 {
 	std::function<void()>& entry = *(std::function<void()>*)(context);
 
 	entry();
 }
+
+namespace fos
+{
+	unsigned int override_get_next_task(void)
+	{
+		return (unsigned int)os::instance().get_next_task();
+	}
+}
+
+/**
+ * Override the kernel simple implementation of scheduling
+ */
+extern "C" __attribute__((used)) unsigned int fos_override_get_next_task(void)
+{
+	return fos::override_get_next_task();
+}
+

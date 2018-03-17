@@ -60,6 +60,11 @@ void fos_kernel_end_of_task(void);
  */
 void fos_kernel_set_systick_hook(void (*)(unsigned int tick));
 
+/**
+ * Override this method to change the implementation of the scheduler.
+ */
+__attribute__((weak)) unsigned int fos_kernel_schedule_get_next_task(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -17,16 +17,16 @@ int main()
 
 	semaphore m;
 
-	os.add_task(new uint8_t[400], 400, [&]()
+	os.add_task(new uint8_t[1000], 1000, []()
 	{
 		// Idle task is needed because otherwise we sometimes have nothing to run.
 		for (;;)
 			;
 	});
 
-	os.add_task(new uint8_t[2000], 2000, [&]()
+	os.add_task(new uint8_t[4000], 4000, [&m]()
 	{
-		while(true)
+		for(;;)
 		{
 			m.take();
 
@@ -34,16 +34,14 @@ int main()
 		}
 	});
 
-	os.add_task(new uint8_t[2000], 2000, [&]()
+	os.add_task(new uint8_t[4000], 4000, [&m]()
 	{
-		for (size_t i = 0; i < 5; i++)
+		for (;;)
 		{
-			// TODO: Firgure out why our clock suddenly doubled itself
-			os.sleep(2000);
+			// TODO: Figure out why our clock suddenly doubled itself
+			os::instance().sleep(2000);
 			m.give();
 		}
-
-		return 0;
 	});
 
 	os.run();

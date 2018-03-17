@@ -58,10 +58,16 @@ namespace fos
 
 		void systick_hook(tick_t tick);
 
+		taskid_t get_next_task();
+
 		static void systick_hook_kernel(unsigned int);
+
+	private:
 
 		fos::internal::task_extra_data _tasks_extra_data[FOS_KERNEL_MAX_TASKS];
 
 		fos::internal::timewheel _timewheel;
+
+		friend unsigned int override_get_next_task(void);
 	};
 }

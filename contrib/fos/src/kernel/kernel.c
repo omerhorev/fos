@@ -2,6 +2,7 @@
 #include "kernel/kernel.h"
 #include "kernel/kernel-data.h"
 #include "kernel/kernel-internal.h"
+#include "kernel/override.h"
 #include "port/port.h"
 #include "cmsis_device.h"
 
@@ -117,10 +118,7 @@ void fos_kernel_schedule(void)
 		g_fos_cur_task->status = fos_kernel_task_status_ready;
 	}
 
-	do
-	{
-		new_task_id = (new_task_id + 1) % FOS_KERNEL_MAX_TASKS;
-	} while(g_fos_tasks[new_task_id].status != fos_kernel_task_status_ready);
+	new_task_id = fos_override_get_next_task();
 
 	g_fos_cur_task = &g_fos_tasks[new_task_id];
 	g_fos_cur_task->status = fos_kernel_task_status_running;
