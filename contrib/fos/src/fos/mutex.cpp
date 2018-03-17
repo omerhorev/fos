@@ -5,7 +5,6 @@
 #include "kernel/kernel.h"
 #include "kernel/kernel-internal.h"
 
-
 using namespace fos;
 
 void mutex::lock()
@@ -14,7 +13,8 @@ void mutex::lock()
 	{
 		if (!_is_locked)
 		{
-			take_control();
+			_owner = os::instance().get_current_task_id();
+			_is_locked = true;
 
 			break;
 		}
@@ -61,8 +61,4 @@ void mutex::unlock()
 	}
 }
 
-void mutex::take_control()
-{
-	_owner = os::instance().get_current_task_id();
-	_is_locked = true;
-}
+

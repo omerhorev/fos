@@ -4,40 +4,52 @@
 
 #include "fos/options.h"
 #include "fos/fos-general.h"
+#include "fos/internal/internal-structures.h"
 
 namespace fos
 {
-	/**
-	 * This class holds all the extra data saved by the parts of the os
-	 * that are not the kernel.
-	 */
-	class task_extra_data
-	{
-		std::function<void()> entry;
-	};
-
 	class os
 	{
 	public:
+
+		/**
+		 * Returns a instance of the OS
+		 */
 		static os& instance()
 		{
 			static os instance;
 			return instance;
 		}
 
+		/**
+		 * Start running the OS.
+		 * if successful, this function will not return.
+		 */
 		void run();
 
+		/**
+		 * Adds a new task to the OS
+		 *
+		 * @param stack      A buffer that will be used as the stack
+		 * @param stack_size The size of the buffer allocated
+		 * @param entry      The method that will be called when running the task.
+		 */
 		bool add_task(void* stack, size_t stack_size, std::function<void()> entry);
 
+		/**
+		 * Get the current systicks of the system.
+		 */
 		tick_t get_systicks() const;
 
+		/**
+		 * Returns the task id of the currently running task
+		 */
 		taskid_t get_current_task_id() const;
-
 
 	private:
 
 		os();
 
-		task_extra_data _tasks_extra_data[FOS_KERNEL_MAX_TASKS];
+		fos::internal::task_extra_data _tasks_extra_data[FOS_KERNEL_MAX_TASKS];
 	};
 }
