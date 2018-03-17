@@ -46,6 +46,7 @@ void mutex::lock()
 void mutex::unlock()
 {
 	_is_locked = false;
+	_owner = fos::INVALID_TASK;
 
 	while (!_waiting_tasks.empty())
 	{

@@ -16,6 +16,7 @@ struct fos_tcb *g_fos_cur_task;
 // ------------------------ private globals ------------------------
 static tick_t g_fos_kernel_ticks;
 static enum kernel_state g_fos_kernel_state = kerenl_state_uninitialized;
+static void (*g_fos_kernel_systick_hook)(unsigned int);
 
 // ------------------------ private methods  -----------------------
 static bool is_kernel_initialized(void);
@@ -26,7 +27,7 @@ bool fos_kernel_init()
 {
 	g_fos_kernel_ticks = 0;
 	g_fos_task_count = 0;
-
+	g_fos_kernel_systick_hook = NULL;
 	g_fos_kernel_state = kerenl_state_initialized;
 
 	for (size_t i = 0; i < FOS_KERNEL_MAX_TASKS; i++)
@@ -156,6 +157,11 @@ void fos_kernel_end_of_task(void)
 		;
 }
 
+void fos_kernel_set_systick_hook(void (*hook)(unsigned int tick))
+{
+	g_fos_kernel_systick_hook = hook;
+}
+
 static inline bool is_kernel_initialized(void)
 {
 	return g_fos_kernel_state != kerenl_state_uninitialized;
@@ -180,6 +186,11 @@ __attribute__((isr, unused)) void SysTick_Handler(void)
 	}
 
 	g_fos_kernel_ticks++;
+
+	if (g_fos_kernel_systick_hook != NULL)
+	{
+		g_fos_kernel_systick_hook(g_fos_kernel_ticks++);
+	}
 
 	if (is_need_to_schedule(g_fos_kernel_ticks))
 	{

@@ -52,6 +52,14 @@ unsigned int fos_kernel_get_current_task_id(void);
  */
 void fos_kernel_end_of_task(void);
 
+/**
+ * Sets the function that will be called when executing the systick
+ * interrupt.
+ *
+ * The method will be called from interrupt context!
+ */
+void fos_kernel_set_systick_hook(void (*)(unsigned int tick));
+
 #ifdef __cplusplus
 }
 #endif

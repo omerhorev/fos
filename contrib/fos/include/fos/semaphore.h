@@ -24,7 +24,13 @@ namespace fos
 		 *
 		 * @param count The amount of resources to start with.
 		 */
-		semaphore(unsigned int count) : _count(count) { }
+		semaphore(unsigned int count) : _count(count)
+		{
+			if (count == 0)
+			{
+				_mutex.lock();
+			}
+		}
 
 		/**
 		 * Takes a resource.

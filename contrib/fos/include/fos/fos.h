@@ -5,6 +5,7 @@
 #include "fos/options.h"
 #include "fos/fos-general.h"
 #include "fos/internal/internal-structures.h"
+#include "fos/internal/timewheel.h"
 
 namespace fos
 {
@@ -46,10 +47,21 @@ namespace fos
 		 */
 		taskid_t get_current_task_id() const;
 
+		/**
+		 * Sleep for a certain amount of ticks
+		 */
+		void sleep(tick_t ticks);
+
 	private:
 
 		os();
 
+		void systick_hook(tick_t tick);
+
+		static void systick_hook_kernel(unsigned int);
+
 		fos::internal::task_extra_data _tasks_extra_data[FOS_KERNEL_MAX_TASKS];
+
+		fos::internal::timewheel _timewheel;
 	};
 }

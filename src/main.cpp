@@ -19,6 +19,13 @@ int main()
 
 	os.add_task(new uint8_t[400], 400, [&]()
 	{
+		// Idle task is needed because otherwise we sometimes have nothing to run.
+		for (;;)
+			;
+	});
+
+	os.add_task(new uint8_t[2000], 2000, [&]()
+	{
 		while(true)
 		{
 			m.take();
@@ -27,18 +34,13 @@ int main()
 		}
 	});
 
-	os.add_task(new uint8_t[400], 400, [&]()
+	os.add_task(new uint8_t[2000], 2000, [&]()
 	{
-		fos::tick_t sec = 0;
-
-		while (sec < 5)
+		for (size_t i = 0; i < 5; i++)
 		{
-			if (sec != (os::instance().get_systicks() / 1000))
-			{
-				sec = (os::instance().get_systicks() / 1000);
-
-				m.give();
-			}
+			// TODO: Firgure out why our clock suddenly doubled itself
+			os.sleep(2000);
+			m.give();
 		}
 
 		return 0;

@@ -10,8 +10,6 @@
 .globl fos_port_run_first_task
 fos_port_run_first_task:
 
-    // TODO: Set the kernel stack pointer to its original location
-
     svc 0
     ISB                         // Flush the pipeline so the interrupt will happen here
     bx lr                       // Exit from the interrupt

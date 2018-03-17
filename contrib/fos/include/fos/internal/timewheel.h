@@ -10,6 +10,8 @@
 
 namespace fos
 {
+namespace internal
+{
 	class timewheel_event
 	{
 	public:
@@ -71,6 +73,17 @@ namespace fos
 			_events_queue.pop();
 		}
 
+		inline size_t size() const
+		{
+			return _events_queue.size();
+		}
+
+		inline size_t empty() const
+		{
+			return _events_queue.size() == 0;
+		}
+
 		std::priority_queue<timewheel_event, std::vector<timewheel_event>, timewheel_comparer> _events_queue;
 	};
+}
 }
