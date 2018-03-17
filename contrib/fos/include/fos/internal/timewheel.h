@@ -43,8 +43,7 @@ namespace internal
 	class timewheel_comparer
 	{
 	public:
-	public:
-	    bool operator() (timewheel_event event1, timewheel_event event2)
+	    bool operator() (timewheel_event& event1, timewheel_event& event2)
 	    {
 	    	tick_t tick1 = event1.get_ticks();
 	    	tick_t tick2 = event2.get_ticks();
@@ -58,7 +57,7 @@ namespace internal
 	public:
 		void push(std::function<void(tick_t)> event, tick_t ticks)
 		{
-			_events_queue.push(*new timewheel_event(event, ticks));
+			_events_queue.push(timewheel_event(event, ticks));
 		}
 
 		inline const timewheel_event& top() const
