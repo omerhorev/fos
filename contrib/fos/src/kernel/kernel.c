@@ -68,21 +68,21 @@ bool fos_kernel_run()
 	return true;
 }
 
-bool fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry, void* context)
+unsigned int fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry, void* context)
 {
 	struct fos_tcb* task;
 	regval_t sp;
 
 	if (!is_kernel_initialized())
 	{
-		return false;
+		return -1;
 	}
 
 	if (stack            == NULL                    ||
 		stack_size       <= FOS_PORT_MIN_STACK_SIZE ||
 		g_fos_task_count >= FOS_KERNEL_MAX_TASKS)
 	{
-		return false;
+		return -1;
 	}
 
 	task = &g_fos_tasks[g_fos_task_count];
@@ -99,7 +99,7 @@ bool fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry,
 
 	g_fos_task_count++;
 
-	return true;
+	return task->id;
 }
 
 void fos_kernel_schedule(void)

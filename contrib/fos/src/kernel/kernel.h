@@ -33,7 +33,7 @@ void fos_kernel_systick(void);
  * @param entry    The entry point to the task code
  * @param context  A context that will be passed to the method
  */
-bool fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry, void* context);
+unsigned int fos_kernel_add_task(void* stack, size_t stack_size, fos_task_entry_t entry, void* context);
 
 /**
  * Returns the current systick clock passed since the kernel started

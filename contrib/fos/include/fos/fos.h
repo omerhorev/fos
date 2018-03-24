@@ -6,6 +6,7 @@
 #include "fos/fos-general.h"
 #include "fos/internal/internal-structures.h"
 #include "fos/internal/timewheel.h"
+#include "fos/internal/scheduler.h"
 
 namespace fos
 {
@@ -35,7 +36,7 @@ namespace fos
 		 * @param stack_size The size of the buffer allocated
 		 * @param entry      The method that will be called when running the task.
 		 */
-		bool add_task(void* stack, size_t stack_size, std::function<void()> entry);
+		bool add_task(void* stack, size_t stack_size, std::function<void()> entry, priority_t priority);
 
 		/**
 		 * Get the current systicks of the system.
@@ -67,6 +68,8 @@ namespace fos
 		fos::internal::task_extra_data _tasks_extra_data[FOS_KERNEL_MAX_TASKS];
 
 		fos::internal::timewheel _timewheel;
+
+		fos::internal::scheduler _scheduler;
 
 		friend unsigned int override_get_next_task(void);
 	};

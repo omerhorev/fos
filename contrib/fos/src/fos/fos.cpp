@@ -2,6 +2,7 @@
 #include "fos/mutex.h"
 #include "kernel/kernel.h"
 #include "kernel/kernel-internal.h"
+#include "fos/internal/scheduler.h"
 
 using namespace fos;
 
@@ -18,9 +19,23 @@ void os::run()
 	fos_kernel_run();
 }
 
-bool os::add_task(void* stack, size_t stack_size, std::function<void()> entry)
+bool os::add_task(void* stack, size_t stack_size, std::function<void()> entry, priority_t priority)
 {
-	return fos_kernel_add_task(stack, stack_size, generic_task_entry, &entry);
+	taskid_t id = fos_kernel_add_task(stack, stack_size, generic_task_entry, &entry);
+
+	if (id == INVALID_TASK)
+	{
+		return false;
+	}
+
+	if (!_scheduler.add_task(id, priority))
+	{
+		// Note: Currently not supporting removing tasks
+		// TODO: Support removing tasks
+		return false;
+	}
+
+	return true;
 }
 
 
@@ -81,16 +96,7 @@ void os::systick_hook_kernel(unsigned int ticks)
 
 taskid_t os::get_next_task(void)
 {
-	os::instance()._timewheel.size();
-
-	unsigned int new_task_id = fos_kernel_get_current_task_id();
-
-	do
-	{
-		new_task_id = (new_task_id + 1) % FOS_KERNEL_MAX_TASKS;
-	} while(fos_kernel_get_tcb(new_task_id)->status != fos_kernel_task_status_ready);
-
-	return new_task_id;
+	return _scheduler.next(get_systicks());
 }
 
 static void generic_task_entry(void* context)

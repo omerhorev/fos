@@ -5,6 +5,8 @@
 #include "fos/fos-general.h"
 #include "fos/internal/internal-structures.h"
 
+#include "kernel/kernel-internal.h"
+
 #pragma once
 
 namespace fos
@@ -29,7 +31,6 @@ struct scheduler_tcb
 	tick_t last_tick;
 };
 
-
 /**
  * Represents a scheduler with all the logic needed
  */
@@ -40,25 +41,49 @@ public:
 	bool add_task(taskid_t id, priority_t priority)
 	{
 		_tasks.push_back(scheduler_tcb(id, priority));
-		std::sort(_tasks.begin(), _tasks.end(), [](int a, int b) {
-			return a > b;
+		std::sort(_tasks.begin(), _tasks.end(), [](scheduler_tcb& task1, scheduler_tcb& task2) {
+			return task1.priority > task2.priority;
 		});
+
+		return true;
 	}
 
-	bool remove_task(taskid_t id);
+	bool remove_task(taskid_t id)
+	{
+		_tasks.erase(std::remove_if(_tasks.begin(), _tasks.end(), [id](scheduler_tcb& task)
+	    {
+			return task.id == id;
+	    }), _tasks.end());
 
-	taskid_t get_next_task(tick_t current_ticks);
+		return true;
+	}
 
-	bool halt_task(taskid_t id);
+	taskid_t next(tick_t current_ticks)
+	{
+		for (auto& task : _tasks)
+		{
+			if (fos_kernel_get_tcb(task.id) != nullptr &&
+				fos_kernel_get_tcb(task.id)->status == fos_kernel_task_status_ready)
+			{
+				if (_current_task != nullptr)
+				{
+					_current_task->last_tick = current_ticks;
+				}
 
-	bool resume_task(taskid_t id);
+				_current_task = &task;
+
+				return _current_task->id;
+			}
+		}
+
+		return INVALID_TASK;
+	}
 
 private:
 
-	size_t count;
+	scheduler_tcb* _current_task;
 	std::vector<scheduler_tcb> _tasks;
 };
-
 
 }
 }
