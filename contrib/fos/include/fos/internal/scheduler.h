@@ -14,17 +14,16 @@ namespace fos
 namespace internal
 {
 
+/**
+ * The metadata saved for each task in the scheduler
+ */
 struct scheduler_tcb
 {
 	scheduler_tcb() : id(INVALID_TASK), priority(0), last_tick(0)
-	{
-
-	}
+	{}
 
 	scheduler_tcb(taskid_t id, priority_t priority) : id(id), priority(priority), last_tick(0)
-	{
-
-	}
+	{}
 
 	taskid_t id;
 	priority_t priority;
@@ -38,6 +37,12 @@ class scheduler
 {
 public:
 
+	/**
+	 * Adds a new task to the scheduler
+	 *
+	 * @param id       The ID of the task
+	 * @param priority The priority of the task, the bigger the more important.
+	 */
 	bool add_task(taskid_t id, priority_t priority)
 	{
 		_tasks.push_back(scheduler_tcb(id, priority));
@@ -48,6 +53,11 @@ public:
 		return true;
 	}
 
+	/**
+	 * Removes a task from the scheduler
+	 *
+	 * @param id The ID of the task to remove
+	 */
 	bool remove_task(taskid_t id)
 	{
 		_tasks.erase(std::remove_if(_tasks.begin(), _tasks.end(), [id](scheduler_tcb& task)
@@ -58,6 +68,12 @@ public:
 		return true;
 	}
 
+	/**
+	 * Calculates the next task for the kernel
+	 *
+	 * @param current_ticks The current ticks in the system.
+	 * @return The next task id
+	 */
 	taskid_t next(tick_t current_ticks)
 	{
 		for (auto& task : _tasks)

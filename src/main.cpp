@@ -27,13 +27,18 @@ int main()
 
 	os.add_task(new uint8_t[1000], 1000, []()
 	{
+		trace_printf("Starting the system...\n");
+
 		for (;;)
 		{
-			if (os::instance().get_systicks() >= 2000)
+			if (os::instance().get_systicks() >= 6000)
 			{
 				break;
 			}
 		}
+
+		trace_printf("Stopping the high priority task\n");
+
 	}, 5);
 
 	os.add_task(new uint8_t[4000], 4000, []()
