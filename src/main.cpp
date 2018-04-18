@@ -31,7 +31,7 @@ int main()
 
 		for (;;)
 		{
-			if (os::instance().get_systicks() >= 6000)
+			if (os::instance().get_systicks() >= 3000)
 			{
 				break;
 			}
@@ -55,8 +55,7 @@ int main()
 	{
 		for (;;)
 		{
-			// TODO: Figure out why our clock suddenly doubled itself
-			os::instance().sleep(2000);
+			os::instance().sleep(1000);
 			m.give();
 		}
 	}, 4);

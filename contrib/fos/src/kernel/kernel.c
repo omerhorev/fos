@@ -187,7 +187,7 @@ __attribute__((isr, unused)) void SysTick_Handler(void)
 
 	if (g_fos_kernel_systick_hook != NULL)
 	{
-		g_fos_kernel_systick_hook(g_fos_kernel_ticks++);
+		g_fos_kernel_systick_hook(g_fos_kernel_ticks);
 	}
 
 	if (is_need_to_schedule(g_fos_kernel_ticks))
